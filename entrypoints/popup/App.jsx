@@ -7,24 +7,53 @@ export default function App() {
   const [prompt, setPrompt] = useState("");
   const [prompts, setPrompts] = useState([]);
   const [editingId, setEditingId] = useState(null);
-  const [error, setError] = useState(""); 
 
   useEffect(() => {
     loadPrompts();
   }, []);
 
   const loadPrompts = async () => {
-    try {
-      const result = await chrome.storage.local.get("prompts");
-      if (result.prompts) {
-        setPrompts(result.prompts);
-      }
-    } catch (err) {
-      console.error("Failed to load prompts:", err);
+    const result =
+      await chrome.storage.local.get("prompts");
+
+    setPrompts(result.prompts || []);
+  };
+
+  const handleShortcutCapture = (e) => {
+    e.preventDefault();
+
+    if (!e.ctrlKey && !e.altKey) return;
+
+    let key = "";
+
+    if (e.ctrlKey) key += "Ctrl+";
+    if (e.altKey) key += "Alt+";
+    if (e.shiftKey) key += "Shift+";
+
+    if (
+      e.key === "Control" ||
+      e.key === "Alt" ||
+      e.key === "Shift"
+    ) {
+      return;
     }
+
+    key += e.key.toUpperCase();
+
+    setShortcut(key);
   };
 
   const addPrompt = async () => {
+    if (!title.trim()) return;
+    if (!prompt.trim()) return;
+
+    if (
+      !shortcut.startsWith("Ctrl+") &&
+      !shortcut.startsWith("Alt+")
+    ) {
+      return;
+    }
+
     let updated;
 
     if (editingId) {
@@ -39,98 +68,128 @@ export default function App() {
           : p
       );
     } else {
-      const newPrompt = {
-        id: Date.now(),
-        title,
-        shortcut,
-        prompt,
-      };
-
-      updated = [...prompts, newPrompt];
+      updated = [
+        ...prompts,
+        {
+          id: Date.now(),
+          title,
+          shortcut,
+          prompt,
+        },
+      ];
     }
 
-    try {
-      await chrome.storage.local.set({
-        prompts: updated,
-      });
-      setPrompts(updated);
-      
-      setTitle("");
-      setShortcut("");
-      setPrompt("");
-      setEditingId(null);
-    } catch (err) {
-      setError(err.message);
-    }
+    await chrome.storage.local.set({
+      prompts: updated,
+    });
+
+    setPrompts(updated);
+
+    setTitle("");
+    setShortcut("");
+    setPrompt("");
+    setEditingId(null);
   };
 
-  const editPrompt = (promptData) => {
-    setTitle(promptData.title);
-    setShortcut(promptData.shortcut);
-    setPrompt(promptData.prompt);
-    setEditingId(promptData.id);
+  const editPrompt = (p) => {
+    setTitle(p.title);
+    setShortcut(p.shortcut);
+    setPrompt(p.prompt);
+    setEditingId(p.id);
   };
 
   const deletePrompt = async (id) => {
-    const updated = prompts.filter((p) => p.id !== id);
+    const updated = prompts.filter(
+      (p) => p.id !== id
+    );
 
-    try {
-      await chrome.storage.local.set({
-        prompts: updated,
-      });
-      setPrompts(updated);
-    } catch (err) {
-      setError(err.message);
-    }
+    await chrome.storage.local.set({
+      prompts: updated,
+    });
+
+    setPrompts(updated);
   };
 
   return (
-    <div className="cotainer">
-      <h1 className="title">PromptVault</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <div className="container">
+      <h1 className="title">
+        PromptVault
+      </h1>
 
       <input
-      className="input"
+        className="input"
         type="text"
         placeholder="Prompt Title"
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        onChange={(e) =>
+          setTitle(e.target.value)
+        }
       />
-
 
       <input
-      className="input"
+        className="input"
         type="text"
-        placeholder="Shortcut e.g: a,b"
+        placeholder="Press Ctrl or Alt shortcut"
         value={shortcut}
-        onChange={(e) => setShortcut(e.target.value)}
+        readOnly
+        onKeyDown={handleShortcutCapture}
       />
-
 
       <textarea
-      className="textarea"
+        className="textarea"
         rows="5"
-        placeholder="Enter your prompt..."
+        placeholder="Enter prompt..."
         value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
+        onChange={(e) =>
+          setPrompt(e.target.value)
+        }
       />
 
-
-      <button className="add-btn" onClick={addPrompt}>
-        {editingId ? "Update Prompt" : "Add Prompt"}
+      <button
+        className="add-btn"
+        onClick={addPrompt}
+      >
+        {editingId
+          ? "Update Prompt"
+          : "Add Prompt"}
       </button>
 
-      
+      <div className="saved-title">
+        Saved Prompts
+      </div>
 
       {prompts.map((p) => (
-        <div className="prompt-card" key={p.id}>
-          <h3 className="card-title">{p.title}</h3>
-          <p className="card-shortcut"><strong>Shortcut:</strong> {p.shortcut}</p>
-          <p className="card-prompt">{p.prompt}</p>
-        
-          <button  className="edit-btn" onClick={() => editPrompt(p)}>Edit</button>
-          <button className="delete-btn" onClick={() => deletePrompt(p.id)}>Delete</button>
-          
+        <div
+          className="prompt-card"
+          key={p.id}
+        >
+          <h3 className="prompt-title">{p.title}</h3>
+
+          <div className="badge">
+            {p.shortcut}
+          </div>
+
+          <p className="prompt">{p.prompt}</p>
+
+          <div className="actions">
+            <button
+              className="edit-btn"
+              onClick={() =>
+                editPrompt(p)
+              }
+            >
+              Edit
+            </button>
+
+            <button
+              className="delete-btn"
+              onClick={() =>
+                deletePrompt(p.id)
+              }
+            >
+              Delete
+            </button>
+          </div>
         </div>
       ))}
     </div>
