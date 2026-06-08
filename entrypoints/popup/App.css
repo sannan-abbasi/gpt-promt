@@ -62,7 +62,7 @@ body {
   padding: 15px;
 }
 
-.card-title {
+.saved-title {
   color: white;
   font-size: 18px;
   margin-bottom: 8px;
@@ -85,7 +85,20 @@ body {
   max-height: 100px;
   overflow-y: auto;
 }
-
+.prompt-title{
+  font-size: 20px;
+  color: antiquewhite;
+  
+}
+.badge{
+  font-size: 18px;
+  color: antiquewhite;
+}
+.prompt{
+  font-size: 15px;
+  color: antiquewhite;
+  
+}
 .actions {
   margin-top: 12px;
   display: flex;
