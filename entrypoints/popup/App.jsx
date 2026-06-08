@@ -7,7 +7,7 @@ export default function App() {
   const [prompt, setPrompt] = useState("");
   const [prompts, setPrompts] = useState([]);
   const [editingId, setEditingId] = useState(null);
-  const [error, setError] = useState(""); 
+  const [error, setError] = useState("");
 
   useEffect(() => {
     loadPrompts();
@@ -31,11 +31,11 @@ export default function App() {
       updated = prompts.map((p) =>
         p.id === editingId
           ? {
-              ...p,
-              title,
-              shortcut,
-              prompt,
-            }
+            ...p,
+            title,
+            shortcut,
+            prompt,
+          }
           : p
       );
     } else {
@@ -54,7 +54,7 @@ export default function App() {
         prompts: updated,
       });
       setPrompts(updated);
-      
+
       setTitle("");
       setShortcut("");
       setPrompt("");
@@ -90,7 +90,7 @@ export default function App() {
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       <input
-      className="input"
+        className="input"
         type="text"
         placeholder="Prompt Title"
         value={title}
@@ -99,7 +99,7 @@ export default function App() {
 
 
       <input
-      className="input"
+        className="input"
         type="text"
         placeholder="Shortcut e.g: a,b"
         value={shortcut}
@@ -108,7 +108,7 @@ export default function App() {
 
 
       <textarea
-      className="textarea"
+        className="textarea"
         rows="5"
         placeholder="Enter your prompt..."
         value={prompt}
@@ -120,17 +120,17 @@ export default function App() {
         {editingId ? "Update Prompt" : "Add Prompt"}
       </button>
 
-      
+
 
       {prompts.map((p) => (
         <div className="prompt-card" key={p.id}>
           <h3 className="card-title">{p.title}</h3>
           <p className="card-shortcut"><strong>Shortcut:</strong> {p.shortcut}</p>
           <p className="card-prompt">{p.prompt}</p>
-        
-          <button  className="edit-btn" onClick={() => editPrompt(p)}>Edit</button>
+
+          <button className="edit-btn" onClick={() => editPrompt(p)}>Edit</button>
           <button className="delete-btn" onClick={() => deletePrompt(p.id)}>Delete</button>
-          
+
         </div>
       ))}
     </div>
