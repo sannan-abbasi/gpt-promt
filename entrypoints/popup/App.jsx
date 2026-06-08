@@ -60,11 +60,11 @@ export default function App() {
       updated = prompts.map((p) =>
         p.id === editingId
           ? {
-              ...p,
-              title,
-              shortcut,
-              prompt,
-            }
+            ...p,
+            title,
+            shortcut,
+            prompt,
+          }
           : p
       );
     } else {

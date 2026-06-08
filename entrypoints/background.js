@@ -9,7 +9,7 @@ export default defineBackground(() => {
           });
         }
       });
-      return true; 
+      return true;
     }
 
     if (message.type === 'TRACK_USAGE') {
@@ -29,6 +29,25 @@ export default defineBackground(() => {
       });
       sendResponse({ ok: true });
       return true;
+    }
+    if (message.action === 'authenticate') {
+      (async () => {
+        try {
+          console.log(message)
+          const resp = await fetch('http://localhost:4000/extension', {
+            headers: {
+              'x-extension-id': browser.runtime.id
+            }
+          })
+          if (resp.ok)
+            sendResponse({ ok: true })
+          else sendResponse({ ok: false })
+        } catch (err) {
+          console.log(err)
+          sendResponse({ ok: false })
+        }
+      })()
+      return true
     }
   });
 });
