@@ -34,7 +34,7 @@ export default defineBackground(() => {
       (async () => {
         try {
           console.log(message)
-          const resp = await fetch('http://localhost:4000/extension', {
+          const resp = await fetch(import.meta.env.VITE_API_URL + '/extension', {
             headers: {
               'x-extension-id': browser.runtime.id
             }
